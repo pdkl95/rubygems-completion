@@ -37,15 +37,10 @@ if type -p gem >/dev/null ; then
     }
 
     __gem_complete_file() {
-        COMPREPLY=()
-    }
-
-    __gem_complete_file_gem() {
-        __gem_complete_file
-    }
-
-    __gem_complete_file_gemspec() {
-        __gem_complete_file
+        local IFS=$'\n'
+        local EXT cur="${COMP_WORDS[COMP_CWORD]}"
+        [[ -n "$1" ]] && EXT=".$1" || EXT=''
+        COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur*$EXT 2>/dev/null | sed -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/$1/") )
     }
 
     __gem_complete_gemname() {
@@ -152,7 +147,7 @@ if type -p gem >/dev/null ; then
     _gem_build() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options "$@" ;;
-            *)  __gem_complete_file_gemspec ;;
+            *)  __gem_complete_file gemspec ;;
         esac
     }
 
@@ -276,7 +271,7 @@ if type -p gem >/dev/null ; then
     _gem_push() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options '-k -p' '--key= --host= --http-proxy --no-http-proxy' ;;
-            *)  __gem_complete_file_gem ;;
+            *)  __gem_complete_file gem ;;
         esac
     }
 
