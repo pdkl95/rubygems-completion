@@ -8,13 +8,20 @@
 #
 # This was designed around rubygems 1.8.10 and the options may not exactly
 # match other versions.
-
+#
+# ChangeLog:
+#
+#   * 2011/12/16 - remove use of stale bash features. (defining funs
+#                  with the keyword 'function' is apparently not POSIX)
+#
+#   * 2011/11/30 - Initial Release
+#
 
 if type -p gem >/dev/null ; then
-    function __gemcomp {
+    __gemcomp() {
         local all c s=$'\n' IFS=' '$'\t'$'\n'
         local cur="${COMP_WORDS[COMP_CWORD]}"
-        if [ $# -gt 2 ]; then
+        if [[ $# -gt 2 ]] ; then
             cur="$3"
         fi
         for c in $1; do
@@ -29,40 +36,40 @@ if type -p gem >/dev/null ; then
         return
     }
 
-    function __gem_complete_file {
+    __gem_complete_file() {
         COMPREPLY=()
     }
 
-    function __gem_complete_file_gem {
+    __gem_complete_file_gem() {
         __gem_complete_file
     }
 
-    function __gem_complete_file_gemspec {
+    __gem_complete_file_gemspec() {
         __gem_complete_file
     }
 
-    function __gem_complete_gemname {
+    __gem_complete_gemname() {
         __gemcomp "$(gem list --no-details --no-versions)"
     }
 
-    function __gem_complete_gemnameversion {
+    __gem_complete_gemnameversion() {
         __gem_complete_gemname
     }
 
-    function __gem_commands {
+    __gem_commands() {
         #gem help commands | sed -e '/^  /! d; s/^ *//; s/ .*$//'
         echo "build cert check cleanup contents dependency environment fetch generate_index help install list lock outdated owner pristine push query rdoc search server sources specification stale uninstall unpack update which"
     }
 
-    function __gem_stdopt_short {
+    __gem_stdopt_short() {
         echo "-h -V -q"
     }
 
-    function __gem_stdopt_long {
+    __gem_stdopt_long() {
         echo "--help --verbose --no-verbose --quiet --config-file= --backtrace --debug"
     }
 
-    function __gem_options {
+    __gem_options() {
         local cur="${COMP_WORDS[COMP_CWORD]}" short="$1" long="$2"
         shift 2
         case "$cur" in
@@ -78,7 +85,7 @@ if type -p gem >/dev/null ; then
         COMPREPLY=()
     }
 
-    function __gem_localremote_options {
+    __gem_localremote_options() {
         local short="$1" long="$2"
         shift 2
         __gem_options "-l -r -b -B -p ${short}" "\
@@ -91,7 +98,7 @@ if type -p gem >/dev/null ; then
             ${long}"
     }
 
-    function __gem_installupdate_options {
+    __gem_installupdate_options() {
         local short="$1" long="$2"
         shift 2
         __gem_localremote_options "-i -n -d -E -f -w -P -W ${short}" "\
@@ -112,14 +119,14 @@ if type -p gem >/dev/null ; then
             ${long}"
     }
 
-    function __gem_gemnames_or_options {
+    __gem_gemnames_or_options() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options "$@" ;;
             *)  __gem_complete_gemname ;;
         esac
     }
 
-    function __gem_gemnames_or_localremote_options {
+    __gem_gemnames_or_localremote_options() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_localremote_options "$@" ;;
             *)  __gem_complete_gemname ;;
@@ -127,14 +134,14 @@ if type -p gem >/dev/null ; then
     }
 
 
-    function __gem_gemnames_or_installupdate_options {
+    __gem_gemnames_or_installupdate_options() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_installupdate_options "$@" ;;
             *)  __gem_complete_gemname ;;
         esac
     }
 
-    function __gem_files_or_options {
+    __gem_files_or_options() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options "$@" ;;
             *)  __gem_complete_file ;;
@@ -142,14 +149,14 @@ if type -p gem >/dev/null ; then
     }
 
 
-    function _gem_build {
+    _gem_build() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options "$@" ;;
             *)  __gem_complete_file_gemspec ;;
         esac
     }
 
-    function _gem_cert {
+    _gem_cert() {
         __gem_options '-a -l -r -b -C -K -s' '\
             --add=
             --list
@@ -160,18 +167,18 @@ if type -p gem >/dev/null ; then
             --sign='
     }
 
-    function _gem_check {
+    _gem_check() {
         __gem_options '-a -v' '\
             --verify=
             --alien
             --version='
     }
 
-    function _gem_cleanup {
+    _gem_cleanup() {
         __gem_gemnames_or_options '-d' '--dryrun'
     }
 
-    function _gem_contents {
+    _gem_contents() {
         __gem_gemnames_or_options '-v -s -l' '\
             --version=
             --all
@@ -180,7 +187,7 @@ if type -p gem >/dev/null ; then
             --prefix --no-prefix'
     }
 
-    function _gem_dependency {
+    _gem_dependency() {
         __gem_gemnames_or_localremote_options '-v -R' '\
             --version=
             --platform=
@@ -189,14 +196,14 @@ if type -p gem >/dev/null ; then
             --pipe'
     }
 
-    function _gem_environment {
+    _gem_environment() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options ;;
             *)  __gemcomp "packageversion gemdir gempath version remotsources platform" ;;
         esac
     }
 
-    function _gem_fetch {
+    _gem_fetch() {
         __gem_gemnames_or_options '-v -B -p', '\
             --version=
             --platform=
@@ -206,7 +213,7 @@ if type -p gem >/dev/null ; then
             --source='
     }
 
-    function _gem_generate_index {
+    _gem_generate_index() {
         __gem_options '-d' '\
             --directory=
             --legacy --no-legacy
@@ -217,21 +224,21 @@ if type -p gem >/dev/null ; then
             --rss-title='
     }
 
-    function _gem_help {
+    _gem_help() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options ;;
             *)  __gemcomp "commands examples ${__gem_commandlist}" ;;
         esac
     }
 
-    function _gem_install {
+    _gem_install() {
         __gem_gemnames_or_installupdate_options '-v' '\
             --platform=
             --version=
             --prerelease --no-prerelease'
     }
 
-    function _gem_list {
+    _gem_list() {
         __gem_options "-i -v -d -a" "\
             --installed --no-installed
             --version
@@ -240,18 +247,18 @@ if type -p gem >/dev/null ; then
             --all"
     }
 
-    function _gem_lock {
+    _gem_lock() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options '-s' '--strict --no-strict' ;;
             *)  __gem_complete_gemnameversion ;;
         esac
     }
 
-    function _gem_outdated {
+    _gem_outdated() {
         __gem_localremote_options '' '--platform='
     }
 
-    function _gem_owner {
+    _gem_owner() {
         __gem_options '-k -a -r -p' '\
             --key=
             --add=
@@ -259,21 +266,21 @@ if type -p gem >/dev/null ; then
             --http-proxy --no-http-proxy'
     }
 
-    function _gem_pristine {
+    _gem_pristine() {
         __gem_gemnames_or_options '-v' '\
             --all
             --extensions --no-extensions
             --version='
     }
 
-    function _gem_push {
+    _gem_push() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_options '-k -p' '--key= --host= --http-proxy --no-http-proxy' ;;
             *)  __gem_complete_file_gem ;;
         esac
     }
 
-    function _gem_query {
+    _gem_query() {
         __gem_localremote_options '-i -v -n -d -a' '\
           --installed --no-installed
           --version=
@@ -284,7 +291,7 @@ if type -p gem >/dev/null ; then
           --prerelease --no-prerelease'
     }
 
-    function _gem_rdoc {
+    _gem_rdoc() {
         __gem_gemnames_or_options '-v' '\
             --all
             --rdoc --no-rdoc
@@ -293,7 +300,7 @@ if type -p gem >/dev/null ; then
             --version='
     }
 
-    function _gem_search {
+    _gem_search() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             -*) __gem_localremote_options '-i -v -d -a' '\
                     --installed --no-installed
@@ -307,7 +314,7 @@ if type -p gem >/dev/null ; then
         esac
     }
 
-    function _gem_server {
+    _gem_server() {
         __gem_options '-p -d -b -l' '\
             --port=
             --dir=
@@ -316,7 +323,7 @@ if type -p gem >/dev/null ; then
             --launch'
     }
 
-    function _gem_sources {
+    _gem_sources() {
         __gem_options '-a -l -r -c -u -p' '\
             --add=
             --list
@@ -326,7 +333,7 @@ if type -p gem >/dev/null ; then
             --http-proxy --no-http-proxy'
     }
 
-    function _gem_specification {
+    _gem_specification() {
         case ${COMP_CWORD} in
             2) __gem_complete_gemname ;;
             3) __gemcomp "\
@@ -371,11 +378,11 @@ if type -p gem >/dev/null ; then
         esac
     }
 
-    function _gem_stale {
+    _gem_stale() {
         __gem_options
     }
 
-    function _gem_uninstall {
+    _gem_uninstall() {
         __gem_gemnames_or_options '-a -I -x -i -n -v' '\
             --all --no-all
             --ignore-dependencies --no-ignore-dependencies
@@ -388,24 +395,24 @@ if type -p gem >/dev/null ; then
             --platform='
     }
 
-    function _gem_unpack {
+    _gem_unpack() {
         __gem_gemnames_or_options '-v' '--target= --spec --version='
     }
 
-    function _gem_update {
+    _gem_update() {
         __gem_gemnames_or_installupdate_options '' '\
             --system
             --platform=
             --prerelease --no-prerelease'
     }
 
-    function _gem_which {
+    _gem_which() {
         __gem_files_or_options '-a -g' '\
             --all --no-all
             --gems-first --no-gems-first'
     }
 
-    function __gem {
+    __gem() {
         case "${COMP_WORDS[COMP_CWORD]}" in
             --*=*) COMPREPLY=() ;;
             --*)   __gemcomp "--help --version" ;;
@@ -414,10 +421,10 @@ if type -p gem >/dev/null ; then
         esac
     }
 
-    function _gem {
+    _gem() {
         local command
-        [ $COMP_CWORD -gt 1 ] && command="${COMP_WORDS[1]}"
-        [ $COMP_CWORD -eq 1 ] && [ -z "$command" ] && __gem && return
+        [[ $COMP_CWORD -gt 1 ]] && command="${COMP_WORDS[1]}"
+        [[ $COMP_CWORD -eq 1 ]] && [[ -z "$command" ]] && __gem && return
 
         case "$command" in
             build)          _gem_build ;;
