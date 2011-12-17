@@ -11,6 +11,9 @@
 #
 # ChangeLog:
 #
+#   * 2011/12/16 - added matching filenames, filtered by extension,
+#                  which is used already in a few places
+#
 #   * 2011/12/16 - remove use of stale bash features. (defining funs
 #                  with the keyword 'function' is apparently not POSIX)
 #
