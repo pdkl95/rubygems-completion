@@ -290,7 +290,7 @@ _gem_dependency() {
 _gem_environment() {
     case "${COMP_WORDS[COMP_CWORD]}" in
         -*) __gem_options ;;
-        *)  __gemcomp "packageversion gemdir gempath version remotsources platform" ;;
+        *)  __gemcomp "packageversion gemdir gempath version remotesources platform" ;;
     esac
 }
 
